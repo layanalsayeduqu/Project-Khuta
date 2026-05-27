@@ -6,15 +6,26 @@ import {
 } from "react";
 
 const TRANSLATIONS = {
-
     en: {
-
         home: "Home",
         login: "Login",
         register: "Create Account",
         profile: "My Profile",
         map: "Navigation",
         logout: "Logout",
+
+        liveScore: "Live Score",
+        upcomingMatchesHome: "Upcoming Matches",
+        liveNow: "LIVE",
+        saudiLeague: "Saudi Pro League",
+
+        alHilal: "Al Hilal",
+        alNassr: "Al Nassr",
+        alRaed: "Al-Raed",
+        alRiyadh: "Al Riyadh",
+        alWehda: "Al Wehda Club",
+        alFayha: "Al-Fayha",
+        alTaawon: "Al Taawon",
 
         welcome: "Welcome to Khuta Stadium",
         subtitle: "Book matches, choose your seat, and navigate inside the stadium easily.",
@@ -37,25 +48,6 @@ const TRANSLATIONS = {
 
         saveChanges: "Save Changes",
 
-        mainTitle: "Journey Map",
-        mainSubtitle: "Every step you take shapes your future. Explore your upcoming milestones",
-        findRoute: "Find Best Route",
-        backendRouting: "Backend routing area",
-        startPoint: "Your Current Location / Start point",
-        destination: "Destination",
-        notSelected: "Not selected",
-        dijkstraOutput: "Dijkstra route output",
-        clearSelection: "Clear Selection",
-        mapLegend: "Map Legend",
-        routeMsg: "Select a gate and a seat to preview the route",
-        locationSelected: "Location selected",
-        gateClickArea: "Gate selected successfully",
-        gate3d: "Gate 3D on the wall",
-
-        statusAvailable: "Available",
-        statusReserved: "Reserved",
-        statusSold: "Sold",
-
         tickets: "Tickets",
         myBookings: "My Bookings",
         favorites: "My Favorites",
@@ -75,40 +67,8 @@ const TRANSLATIONS = {
         stadiumGate: "Stadium Gate",
         seatNumber: "Seat Number",
 
-        upcomingTickets: "Upcoming Tickets",
         bookingSuccess: "Booking Successful",
         cancelBooking: "Cancel Booking",
-
-        favoriteClubMatches: "Favorite Club Matches",
-
-        liveMatches: "Live Matches",
-        latestMatches: "Latest Matches",
-
-        viewDetails: "View Details",
-        bookTicket: "Book Ticket",
-
-        ticketHeroSubtitle: "Choose your match and enjoy the stadium experience",
-        availableMatches: "Available Matches",
-        startsFrom: "Starts from",
-        priceByCategory: "Depends on selected category",
-        noTicketsFound: "No tickets found",
-        scanAtGate: "Scan at gate",
-
-        paymentDetails: "Payment Details",
-        cardHolder: "Card holder name",
-        cardNumber: "Card number",
-
-        reviewBooking: "Review your booking before payment",
-        successSub: "Your booking has been completed successfully",
-        noBookingSelected: "No booking selected.",
-        fillCardError: "Please fill all card details correctly",
-
-        selected: "Selected",
-        noSeatsSelected: "No seats selected yet",
-        back: "Back",
-        total: "Total",
-
-        myBookingsSub: "View and manage your booked tickets",
 
         loginSubtitle: "Welcome back to Khuta Stadium",
         registerSubtitle: "Join Khuta Stadium today",
@@ -119,21 +79,30 @@ const TRANSLATIONS = {
         haveAccount: "Already have an account?",
         select: "Select",
 
-        resetPasswordSubtitle: "Enter your email and we will send you reset instructions",
-        backToLogin: "Back to login",
-
         profileSubtitle: "Manage your personal information",
         profileUpdated: "Profile updated successfully"
     },
 
     ar: {
-
         home: "الرئيسية",
         login: "تسجيل الدخول",
         register: "إنشاء حساب",
         profile: "ملفي الشخصي",
         map: "الملاحة",
         logout: "تسجيل الخروج",
+
+        liveScore: "النتائج المباشرة",
+        upcomingMatchesHome: "المباريات القادمة",
+        liveNow: "مباشر",
+        saudiLeague: "دوري روشن السعودي",
+
+        alHilal: "الهلال",
+        alNassr: "النصر",
+        alRaed: "الرائد",
+        alRiyadh: "الرياض",
+        alWehda: "الوحدة",
+        alFayha: "الفيحاء",
+        alTaawon: "التعاون",
 
         welcome: "مرحبًا بك في ملعب خُطى",
         subtitle: "احجز المباريات، اختر مقعدك، وتنقل داخل الملعب بسهولة.",
@@ -156,25 +125,6 @@ const TRANSLATIONS = {
 
         saveChanges: "حفظ التغير",
 
-        mainTitle: "خريطة الرحلة",
-        mainSubtitle: "كل خطوة خطوتها ترسم معالم مستقبلك. استكشف محطاتك القادمة",
-        findRoute: "البحث عن أفضل مسار",
-        backendRouting: "منطقة حساب المسارات",
-        startPoint: "موقعك الحالي / نقطة الانطلاق",
-        destination: "وجهتك",
-        notSelected: "لم يتم التحديد",
-        dijkstraOutput: "حساب المسار الأسرع (خوارزمية دايجسترا)",
-        clearSelection: "مسح التحديد",
-        mapLegend: "دليل الخريطة",
-        routeMsg: "اختر البوابة والمقعد لعرض المسار التوجيهي",
-        locationSelected: "تم تحديد الموقع بنجاح",
-        gateClickArea: "تم تحديد الـبوابة بنجاح",
-        gate3d: "بوابة ثلاثية الأبعاد على الجدار",
-
-        statusAvailable: "متاح",
-        statusReserved: "محجوز",
-        statusSold: "مباع",
-
         tickets: "التذاكر",
         myBookings: "حجوزاتي",
         favorites: "النادي المفضل",
@@ -194,40 +144,8 @@ const TRANSLATIONS = {
         stadiumGate: "بوابة الملعب",
         seatNumber: "رقم المقعد",
 
-        upcomingTickets: "التذاكر القادمة",
         bookingSuccess: "تم الحجز بنجاح",
         cancelBooking: "إلغاء الحجز",
-
-        favoriteClubMatches: "مباريات النادي المفضل",
-
-        liveMatches: "المباريات المباشرة",
-        latestMatches: "آخر المباريات",
-
-        viewDetails: "عرض التفاصيل",
-        bookTicket: "حجز تذكرة",
-
-        ticketHeroSubtitle: "اختاري مباراتك وعيشي أجواء الملعب",
-        availableMatches: "المباريات المتاحة للحجز",
-        startsFrom: "يبدأ من",
-        priceByCategory: "حسب الفئة المختارة",
-        noTicketsFound: "لا توجد تذاكر",
-        scanAtGate: "امسح عند البوابة",
-
-        paymentDetails: "بيانات الدفع",
-        cardHolder: "اسم حامل البطاقة",
-        cardNumber: "رقم البطاقة",
-
-        reviewBooking: "راجعي الحجز قبل الدفع",
-        successSub: "تم إكمال الحجز بنجاح",
-        noBookingSelected: "لا يوجد حجز محدد",
-        fillCardError: "يرجى تعبئة بيانات البطاقة بشكل صحيح",
-
-        selected: "مختار",
-        noSeatsSelected: "لم يتم اختيار مقاعد بعد",
-        back: "رجوع",
-        total: "المجموع",
-
-        myBookingsSub: "اعرضي وأديري تذاكرك المحجوزة",
 
         loginSubtitle: "مرحبًا بعودتك إلى ملعب خُطى",
         registerSubtitle: "انضمي إلى ملعب خُطى اليوم",
@@ -238,9 +156,6 @@ const TRANSLATIONS = {
         haveAccount: "لديك حساب بالفعل؟",
         select: "اختيار",
 
-        resetPasswordSubtitle: "أدخلي بريدك الإلكتروني وسنرسل لك تعليمات تغيير كلمة المرور",
-        backToLogin: "العودة لتسجيل الدخول",
-
         profileSubtitle: "إدارة معلوماتك الشخصية",
         profileUpdated: "تم تحديث الملف الشخصي بنجاح"
     }
@@ -249,11 +164,8 @@ const TRANSLATIONS = {
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
-
     const getInitialLang = () => {
-
-        const savedLang =
-            localStorage.getItem("lang");
+        const savedLang = localStorage.getItem("lang");
 
         if (savedLang) {
             return savedLang;
@@ -264,11 +176,9 @@ export function LanguageProvider({ children }) {
             : "en";
     };
 
-    const [lang, setLang] =
-        useState(getInitialLang);
+    const [lang, setLang] = useState(getInitialLang);
 
     useEffect(() => {
-
         localStorage.setItem("lang", lang);
 
         document.documentElement.lang = lang;
@@ -277,11 +187,9 @@ export function LanguageProvider({ children }) {
             lang === "ar"
                 ? "rtl"
                 : "ltr";
-
     }, [lang]);
 
     const toggleLanguage = () => {
-
         setLang((current) =>
             current === "en"
                 ? "ar"
@@ -292,7 +200,6 @@ export function LanguageProvider({ children }) {
     const t = TRANSLATIONS[lang];
 
     return (
-
         <LanguageContext.Provider
             value={{
                 lang,
@@ -301,14 +208,11 @@ export function LanguageProvider({ children }) {
                 t
             }}
         >
-
             {children}
-
         </LanguageContext.Provider>
     );
 }
 
 export function useLanguage() {
-
     return useContext(LanguageContext);
 }

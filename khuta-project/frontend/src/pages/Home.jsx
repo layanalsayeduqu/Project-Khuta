@@ -5,27 +5,18 @@ function Home() {
 
     const liveMatch = {
         id: 1,
-        home_team: "Al Hilal",
-        away_team: "Al Nassr",
+        home_team: t.alHilal,
+        away_team: t.alNassr,
         home_goals: 2,
         away_goals: 1,
         date: "2024-12-15T20:00:00",
-        league: "Pro League"
+        league: t.saudiLeague
     };
 
     const upcomingMatches = [
-        { id: 1, home_team: "Al-Raed", away_team: "Al-Nassr", date: "2024-08-22T21:00:00", league: "Pro League" },
-        { id: 2, home_team: "Al Riyadh", away_team: "Al Wehda Club", date: "2024-08-22T21:00:00", league: "Pro League" },
-        { id: 3, home_team: "Al-Fayha", away_team: "Al Taawon", date: "2024-08-22T19:10:00", league: "Pro League" },
-        { id: 4, home_team: "Al-Fateh", away_team: "Al-Qadisiyah FC", date: "2024-08-23T21:00:00", league: "Pro League" },
-        { id: 5, home_team: "Al Orubah", away_team: "Al-Ahli Jeddah", date: "2024-08-23T21:00:00", league: "Pro League" },
-        { id: 6, home_team: "Al Khaleej Saihat", away_team: "Damac", date: "2024-08-23T19:10:00", league: "Pro League" },
-        { id: 7, home_team: "Al-Hilal Saudi FC", away_team: "Al Okhdood", date: "2024-08-24T21:00:00", league: "Pro League" },
-        { id: 8, home_team: "Al-Ettifaq", away_team: "Al Shabab", date: "2024-08-24T21:00:00", league: "Pro League" },
-        { id: 9, home_team: "Al-Ittihad FC", away_team: "Al Kholood", date: "2024-08-24T19:10:00", league: "Pro League" },
-        { id: 10, home_team: "Al-Nassr", away_team: "Al-Fayha", date: "2024-08-27T21:00:00", league: "Pro League" },
-        { id: 11, home_team: "Al-Qadisiyah FC", away_team: "Al-Raed", date: "2024-08-27T21:00:00", league: "Pro League" },
-        { id: 12, home_team: "Al-Ahli Jeddah", away_team: "Al-Fateh", date: "2024-08-27T18:45:00", league: "Pro League" }
+        { id: 1, home_team: t.alRaed, away_team: t.alNassr, date: "2024-08-22T21:00:00", league: t.saudiLeague },
+        { id: 2, home_team: t.alRiyadh, away_team: t.alWehda, date: "2024-08-22T21:00:00", league: t.saudiLeague },
+        { id: 3, home_team: t.alFayha, away_team: t.alTaawon, date: "2024-08-22T19:10:00", league: t.saudiLeague }
     ];
 
     const formatDate = (date) =>
@@ -39,46 +30,13 @@ function Home() {
 
     return (
         <main className="page home-page">
-            <section className="home-hero">
-                <div className="hero-badge">{t.premiumExperience}</div>
-
-                <h1 className="hero-logo-text">خُطى</h1>
-                <h2>{t.heroTitle}</h2>
-                <p>{t.heroSub}</p>
-
-                <div className="home-hero-actions">
-                    <button
-                        className="home-main-btn"
-                        onClick={() => window.location.href = "/tickets"}
-                    >
-                        {t.bookNow}
-                    </button>
-
-                    <button
-                        className="home-outline-btn"
-                        onClick={() => window.location.href = "/map"}
-                    >
-                        {t.exploreStadium}
-                    </button>
-                </div>
-
-                <div className="hero-stats">
-                    <div><strong>+500</strong><span>{t.events}</span></div>
-                    <div><strong>+1M</strong><span>{t.ticketsSold}</span></div>
-                    <div><strong>+50</strong><span>{t.stadiums}</span></div>
-                </div>
-            </section>
-
             <section className="today-section">
-                <div className="section-head">
-                    <div>
-                        <h2>🏆 {t.todayMatches}</h2>
-                        <p>{t.todayMatchesSub}</p>
-                    </div>
-                </div>
+                <h2 className="home-section-title">{t.liveScore}</h2>
 
                 <div className="live-match-card">
-                    <div className="live-label">{t.liveNow}</div>
+                    <div className="live-label">
+                        {t.liveNow} 🔴
+                    </div>
 
                     <div className="live-teams">
                         <div className="live-team">
@@ -105,7 +63,7 @@ function Home() {
             </section>
 
             <section className="upcoming-section">
-                <h2>{t.upcomingMatches}</h2>
+                <h2 className="home-section-title">{t.upcomingMatchesHome}</h2>
 
                 <div className="upcoming-grid">
                     {upcomingMatches.map((match) => (

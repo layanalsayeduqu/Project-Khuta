@@ -49,7 +49,7 @@ function FavoriteClub() {
             <section className="favorite-page-pro">
 
                 <div className="favorite-header">
-                    <div className="favorite-icon">♡</div>
+                    <div className="favorite-icon"><img src="/logo.png" alt="Khuta Logo" /></div>
 
                     <div>
                         <h1>{t.favorites || "My Favorites"}</h1>

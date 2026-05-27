@@ -57,7 +57,7 @@ function Login() {
             <section className="auth-card">
 
                 <div className="auth-icon">
-                    🏆
+                    <img src="/logo.png" alt="Khuta Logo" />
                 </div>
 
                 <h1>

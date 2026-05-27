@@ -13,10 +13,10 @@ router = APIRouter(
 class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=3, max_length=100)
     email: EmailStr
-    password: str = Field(..., min_length=6)
+    password: str = Field(..., min_length=8, max_length=30)
     gender: str
-    age: int
-    phone: str
+    age: int = Field(..., ge=18, le=120)
+    phone: str = Field(..., min_length=10, max_length=15)
 
 
 @router.post("/register")
@@ -25,6 +25,12 @@ def register_user(user: RegisterRequest):
     cursor = None
 
     try:
+        if len(user.password.encode("utf-8")) > 72:
+            raise HTTPException(
+                status_code=400,
+                detail="كلمة المرور طويلة جدًا"
+            )
+
         connection = get_db_connection()
         cursor = connection.cursor()
 
@@ -52,9 +58,7 @@ def register_user(user: RegisterRequest):
                 age,
                 phone
             )
-            VALUES (
-                %s, %s, %s, %s, %s, %s
-            )
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING id;
         """,
         (
@@ -67,7 +71,6 @@ def register_user(user: RegisterRequest):
         ))
 
         new_user = cursor.fetchone()
-
         connection.commit()
 
         return {
