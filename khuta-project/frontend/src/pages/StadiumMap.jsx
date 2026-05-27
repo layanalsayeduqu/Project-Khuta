@@ -43,12 +43,15 @@ let popupRefGlobal = null;
 function App() {
   const mapRef      = useRef(null);
   const markersRef  = useRef([]);
+  const routeAnimationRef = useRef(null);
   const [selectedSeat,   setSelectedSeat]   = useState(null);
   const [selectedGate,   setSelectedGate]   = useState(null);
   // يسمح باختيار أي نقطتين على الخريطة كبداية ونهاية، وليس بوابة ثم مقعد فقط
   const selectedRouteRef = useRef({ start: null, end: null });
   // نخزن بيانات الممرات حتى نرسل للباك أقرب نقطة مشي بدل نقطة داخل المدرج
   const walkwaysRef = useRef(null);
+  // نخزن كراسي 3D حتى نغير لون الكرسي/الصف حسب المقعد الذي يختاره المستخدم
+  const seats3dRef = useRef(null);
   const [seatFilter,     setSeatFilter]     = useState("all");
   const [activeFilter,   setActiveFilter]   = useState("all");
 const [msg, setMsg] = useState("");  const [routeDrawn,     setRouteDrawn]     = useState(false);
@@ -329,9 +332,10 @@ map.addLayer({
         });
         // ── المقاعد ──
         const seatPoints = normalizeSeatPoints(seats);
+        seats3dRef.current = normalizeSeat3dCollection(seats3d);
         map.addSource("seats", { type: "geojson", data: seatPoints });
         // كراسي 3D: للعرض فقط، بينما نقاط seats تبقى موجودة للباك إند والاختيار
-        map.addSource("seats-3d", { type: "geojson", data: seats3d });
+        map.addSource("seats-3d", { type: "geojson", data: seats3dRef.current });
        map.addLayer({
   id: "seats-3d",
   type: "fill-extrusion",
@@ -355,8 +359,12 @@ map.addLayer({
   type: "circle",
   source: "seats",
   paint: {
-    "circle-radius": 0,
-    "circle-opacity": 0,
+    // تظهر فقط للمقعد الذي يختاره المستخدم، وبكذا يتغير لون الكرسي حسب الاختيار
+    "circle-radius": ["case", ["boolean", ["feature-state", "selected"], false], 8, 0],
+    "circle-color": "#ff2d55",
+    "circle-stroke-color": "#ffffff",
+    "circle-stroke-width": ["case", ["boolean", ["feature-state", "selected"], false], 3, 0],
+    "circle-opacity": ["case", ["boolean", ["feature-state", "selected"], false], 1, 0],
   },
 });
 map.addLayer({
@@ -366,6 +374,65 @@ map.addLayer({
   paint: {
     "circle-radius": 8,
     "circle-opacity": 0,
+  },
+});
+
+// طبقات ديناميكية: تتغير حسب المقعد الذي يختاره المستخدم، بدون تثبيت مقعد معيّن
+map.addSource("selected-row-3d", { type: "geojson", data: emptyRoute() });
+map.addLayer({
+  id: "selected-row-3d",
+  type: "fill-extrusion",
+  source: "selected-row-3d",
+  paint: {
+    "fill-extrusion-color": "#ffd166",
+    "fill-extrusion-height": ["+", ["to-number", ["coalesce", ["get", "visual_height"], 1]], 0.7],
+    "fill-extrusion-base": ["to-number", ["coalesce", ["get", "visual_base"], 0]],
+    "fill-extrusion-opacity": 0.75,
+  },
+});
+
+map.addSource("selected-seat-3d", { type: "geojson", data: emptyRoute() });
+map.addLayer({
+  id: "selected-seat-3d",
+  type: "fill-extrusion",
+  source: "selected-seat-3d",
+  paint: {
+    "fill-extrusion-color": "#ff2d55",
+    "fill-extrusion-height": ["+", ["to-number", ["coalesce", ["get", "visual_height"], 1]], 1.8],
+    "fill-extrusion-base": ["to-number", ["coalesce", ["get", "visual_base"], 0]],
+    "fill-extrusion-opacity": 1,
+  },
+});
+
+// احتياط: لو ما تطابقت بيانات seats_3d، تظهر دائرة واضحة فوق نقطة المقعد المختار
+map.addSource("selected-seat-point", { type: "geojson", data: emptyRoute() });
+map.addLayer({
+  id: "selected-seat-point",
+  type: "circle",
+  source: "selected-seat-point",
+  paint: {
+    "circle-radius": 11,
+    "circle-color": "#ff2d55",
+    "circle-stroke-color": "#ffffff",
+    "circle-stroke-width": 3,
+    "circle-opacity": 0.98,
+  },
+});
+map.addLayer({
+  id: "selected-seat-point-label",
+  type: "symbol",
+  source: "selected-seat-point",
+  layout: {
+    "text-field": ["concat", "Seat ", ["to-string", ["get", "seat"]]],
+    "text-size": 13,
+    "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+    "text-offset": [0, -1.5],
+    "text-allow-overlap": true,
+  },
+  paint: {
+    "text-color": "#ffffff",
+    "text-halo-color": "#111111",
+    "text-halo-width": 2,
   },
 });
         map.addLayer({
@@ -438,27 +505,42 @@ map.addLayer({
 });
 addFacilityMarkers(map, facilities);
         // ── خط المسار ──
+        // التصميم الجديد: مسار أزرق/تركوازي ناعم ومتحرك بدون الأسود والأصفر
         map.addSource("route", { type: "geojson", data: emptyRoute() });
         map.addLayer({
           id: "route-glow",
           type: "line",
           source: "route",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#f1c40f", "line-width": 10, "line-opacity": 0.3, "line-blur": 4 },
+          paint: {
+            "line-color": "#00b8d9",
+            "line-width": 11,
+            "line-opacity": 0.22,
+            "line-blur": 3.5,
+          },
         });
         map.addLayer({
           id: "route-line",
           type: "line",
           source: "route",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#1a1a1a", "line-width": 5.5, "line-opacity": 0.9 },
+          paint: {
+            "line-color": "#006d7c",
+            "line-width": 5.2,
+            "line-opacity": 0.55,
+          },
         });
         map.addLayer({
           id: "route-dashed",
           type: "line",
           source: "route",
           layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": "#f1c40f", "line-width": 2.5, "line-dasharray": [1.2, 1.6] },
+          paint: {
+            "line-color": "#eaffff",
+            "line-width": 3.1,
+            "line-opacity": 0.95,
+            "line-dasharray": [0, 4, 3],
+          },
         });
         // ── أحداث النقر ──
         let lastSelectedId = null;
@@ -472,6 +554,9 @@ addFacilityMarkers(map, facilities);
           map.setFeatureState({ source: "seats", id: f.id }, { selected: true });
           const p = f.properties || {};
           const coords = f.geometry.coordinates;
+
+          // يغيّر لون الكرسي/الصف حسب المقعد الذي ضغط عليه المستخدم
+          highlightSelectedSeat(p, coords);
           
           // قراءة اللغة من المرجع لضمان جلب الحالة الصحيحة للبوب اب
           const currentLang = mapRef.current?.customLang || "en";
@@ -523,6 +608,7 @@ addFacilityMarkers(map, facilities);
       }
     });
     return () => {
+      stopRouteAnimation();
       markersRef.current.forEach(m => m.remove());
       popupRefGlobal?.remove?.();
       window.removeEventListener("resize", handleMapResize);
@@ -537,6 +623,52 @@ addFacilityMarkers(map, facilities);
     }
     setMsg(t.routeMsg);
   }, [lang]);
+
+  function highlightSelectedSeat(seatProps, coords) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const selectedSeatPoint = {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: seatProps || {},
+        geometry: { type: "Point", coordinates: coords },
+      }],
+    };
+
+    map.getSource("selected-seat-point")?.setData(selectedSeatPoint);
+
+    const seats3d = seats3dRef.current;
+    if (!seats3d?.features?.length) return;
+
+    const selectedKey = getSeatIdentity(seatProps);
+    const selectedRowKey = getSeatRowIdentity(seatProps);
+
+    const sameRowFeatures = seats3d.features.filter((feature) =>
+      selectedRowKey && getSeatRowIdentity(feature.properties || {}) === selectedRowKey
+    );
+
+    const sameSeatFeatures = seats3d.features.filter((feature) =>
+      selectedKey && getSeatIdentity(feature.properties || {}) === selectedKey
+    );
+
+    map.getSource("selected-row-3d")?.setData({
+      type: "FeatureCollection",
+      features: sameRowFeatures,
+    });
+
+    map.getSource("selected-seat-3d")?.setData({
+      type: "FeatureCollection",
+      features: sameSeatFeatures,
+    });
+  }
+
+  function clearSeatHighlight() {
+    mapRef.current?.getSource("selected-row-3d")?.setData(emptyRoute());
+    mapRef.current?.getSource("selected-seat-3d")?.setData(emptyRoute());
+    mapRef.current?.getSource("selected-seat-point")?.setData(emptyRoute());
+  }
 
   function getPointLabel(point) {
     return (
@@ -559,47 +691,102 @@ addFacilityMarkers(map, facilities);
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  function getAllWalkwayPoints() {
+  function getAllWalkwayRings() {
     const data = walkwaysRef.current;
-
     if (!data?.features) return [];
 
-    const points = [];
-
-    function collect(coords) {
-      if (!coords) return;
-
-      if (typeof coords[0] === "number") {
-        points.push(coords);
-        return;
-      }
-
-      coords.forEach(collect);
-    }
+    const rings = [];
 
     data.features.forEach((feature) => {
-      collect(feature.geometry?.coordinates);
+      const geom = feature.geometry;
+      if (!geom?.coordinates) return;
+
+      if (geom.type === "Polygon") {
+        geom.coordinates.forEach((ring) => rings.push(ring));
+      }
+
+      if (geom.type === "MultiPolygon") {
+        geom.coordinates.forEach((polygon) => {
+          polygon.forEach((ring) => rings.push(ring));
+        });
+      }
+
+      // احتياط لو كان ملف الممرات LineString وليس Polygon
+      if (geom.type === "LineString") {
+        rings.push(geom.coordinates);
+      }
+
+      if (geom.type === "MultiLineString") {
+        geom.coordinates.forEach((line) => rings.push(line));
+      }
     });
 
-    return points;
+    return rings.filter((ring) => Array.isArray(ring) && ring.length >= 2);
+  }
+
+  function isPointInsideRing(point, ring) {
+    if (!point || !ring?.length) return false;
+    const [x, y] = point;
+    let inside = false;
+
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const xi = ring[i][0], yi = ring[i][1];
+      const xj = ring[j][0], yj = ring[j][1];
+
+      const intersects = ((yi > y) !== (yj > y)) &&
+        (x < ((xj - xi) * (y - yi)) / ((yj - yi) || 1e-12) + xi);
+
+      if (intersects) inside = !inside;
+    }
+
+    return inside;
+  }
+
+  function nearestPointOnSegment(point, a, b) {
+    const px = Number(point[0]), py = Number(point[1]);
+    const ax = Number(a[0]), ay = Number(a[1]);
+    const bx = Number(b[0]), by = Number(b[1]);
+
+    const dx = bx - ax;
+    const dy = by - ay;
+    const lengthSquared = dx * dx + dy * dy;
+
+    if (!lengthSquared) return a;
+
+    let t = ((px - ax) * dx + (py - ay) * dy) / lengthSquared;
+    t = Math.max(0, Math.min(1, t));
+
+    return [ax + t * dx, ay + t * dy];
   }
 
   function snapToNearestWalkway(originalCoords) {
-    const walkwayPoints = getAllWalkwayPoints();
+    const rings = getAllWalkwayRings();
 
-    if (!originalCoords || !walkwayPoints.length) {
+    if (!originalCoords || !rings.length) {
       return originalCoords;
     }
 
-    let nearest = walkwayPoints[0];
-    let minDistance = pointDistance(originalCoords, nearest);
+    // إذا كانت النقطة أصلًا داخل الممر الأبيض، لا نحركها
+    for (const ring of rings) {
+      if (isPointInsideRing(originalCoords, ring)) {
+        return originalCoords;
+      }
+    }
 
-    walkwayPoints.forEach((point) => {
-      const d = pointDistance(originalCoords, point);
+    // بدل الالتقاط إلى أقرب زاوية فقط، نلتقط إلى أقرب نقطة على حافة الممر الأبيض
+    // هذا يمنع الخط من القفز بشكل قطري غريب داخل المدرجات.
+    let nearest = originalCoords;
+    let minDistance = Number.POSITIVE_INFINITY;
 
-      if (d < minDistance) {
-        minDistance = d;
-        nearest = point;
+    rings.forEach((ring) => {
+      for (let i = 0; i < ring.length - 1; i++) {
+        const candidate = nearestPointOnSegment(originalCoords, ring[i], ring[i + 1]);
+        const d = pointDistance(originalCoords, candidate);
+
+        if (d < minDistance) {
+          minDistance = d;
+          nearest = candidate;
+        }
       }
     });
 
@@ -609,14 +796,13 @@ addFacilityMarkers(map, facilities);
   function selectRoutePoint(point, lngLat, popupHtml) {
     const currentLang = mapRef.current?.customLang || "en";
     const displayCoords = point.coordinates;
-    const routeCoords = snapToNearestWalkway(displayCoords);
 
     const routePoint = {
       ...point,
       label: getPointLabel(point),
+      // الفرونت إند لا يقرر مسار المشي ولا يلتقط النقطة على walkways_3d.
+      // نرسل الإحداثيات الأصلية للباك إند، والباك هو الذي يطابقها مع routing_network الصحيح.
       coordinates: displayCoords,
-      // coordinates للعرض، و routeCoordinates للحساب مع الباك
-      routeCoordinates: routeCoords,
     };
 
     const current = selectedRouteRef.current;
@@ -627,6 +813,7 @@ addFacilityMarkers(map, facilities);
       setSelectedGate(routePoint);
       setSelectedSeat(null);
       setRouteDrawn(false);
+      stopRouteAnimation();
       mapRef.current?.getSource("route")?.setData(emptyRoute());
       setMsg(currentLang === "ar" ? "تم اختيار نقطة البداية. اختاري نقطة النهاية." : "Start point selected. Select the destination point.");
     } else {
@@ -640,6 +827,50 @@ addFacilityMarkers(map, facilities);
     }
   }
 
+  function stopRouteAnimation() {
+    if (routeAnimationRef.current) {
+      clearInterval(routeAnimationRef.current);
+      routeAnimationRef.current = null;
+    }
+  }
+
+  function startRouteAnimation() {
+    const map = mapRef.current;
+    if (!map || !map.getLayer("route-dashed")) return;
+
+    stopRouteAnimation();
+
+    // تغييرات متدرجة للـ dasharray تعطي إحساس حركة الخط باتجاه الوجهة
+    const dashFrames = [
+      [0, 4, 3],
+      [0.5, 3.5, 3],
+      [1, 3, 3],
+      [1.5, 2.5, 3],
+      [2, 2, 3],
+      [2.5, 1.5, 3],
+      [3, 1, 3],
+      [3.5, 0.5, 3],
+      [4, 0, 3],
+      [0, 0.5, 3, 3.5],
+      [0, 1, 3, 3],
+      [0, 1.5, 3, 2.5],
+      [0, 2, 3, 2],
+      [0, 2.5, 3, 1.5],
+      [0, 3, 3, 1],
+      [0, 3.5, 3, 0.5],
+    ];
+
+    let frame = 0;
+    routeAnimationRef.current = setInterval(() => {
+      if (!map.getLayer("route-dashed")) {
+        stopRouteAnimation();
+        return;
+      }
+      map.setPaintProperty("route-dashed", "line-dasharray", dashFrames[frame]);
+      frame = (frame + 1) % dashFrames.length;
+    }, 90);
+  }
+
   // ── fetchRoute: calls backend pgr_dijkstra and draws the result on the map ──
   async function fetchRoute() {
     if (!selectedGate || !selectedSeat) {
@@ -647,8 +878,10 @@ addFacilityMarkers(map, facilities);
       return;
     }
 
-    const startCoords = selectedGate.routeCoordinates || selectedGate.coordinates;
-    const endCoords = selectedSeat.routeCoordinates || selectedSeat.coordinates;
+    // نعتمد على الباك إند فقط في اختيار أقرب نقطة على routing_network.
+    // لا نستخدم routeCoordinates من walkways_3d حتى لا يطلع المسار على حدود المضلعات أو يقطع السكشن.
+    const startCoords = selectedGate.coordinates;
+    const endCoords = selectedSeat.coordinates;
 
     const [gateLon, gateLat] = startCoords;
     const [seatLon, seatLat] = endCoords;
@@ -673,8 +906,17 @@ addFacilityMarkers(map, facilities);
         return;
       }
 
-      mapRef.current?.getSource("route")?.setData(data);
+      // نرسم المسار كما يرجع من الباك إند فقط.
+      // لا نضيف وصلة مستقيمة من البوابة أو المقعد حتى لا يظهر الخط فوق السكشنات.
+      const displayRoute = {
+        ...(data || {}),
+        type: "FeatureCollection",
+        features: data?.features || [],
+      };
+
+      mapRef.current?.getSource("route")?.setData(displayRoute);
       setRouteDrawn(true);
+      startRouteAnimation();
 
       const info = data.route_info || {};
       const dist = info.route_length ? `${parseFloat(info.route_length).toFixed(0)} m` : "";
@@ -685,8 +927,8 @@ addFacilityMarkers(map, facilities);
           : `Route: ${dist} — ${time}`
       );
 
-      if (data.features?.length) {
-        const coords = data.features.flatMap(f =>
+      if (displayRoute.features?.length) {
+        const coords = displayRoute.features.flatMap(f =>
           f.geometry.type === "LineString" ? f.geometry.coordinates : []
         );
         if (coords.length) {
@@ -709,8 +951,10 @@ addFacilityMarkers(map, facilities);
     setSelectedGate(null);
     setSelectedSeat(null);
     setRouteDrawn(false);
+    stopRouteAnimation();
     setMsg(t.routeMsg);
     mapRef.current?.getSource("route")?.setData(emptyRoute());
+    clearSeatHighlight();
   }
  function addGateMarkers(map, data) {
   data.features.forEach((feature) => {
@@ -866,6 +1110,38 @@ function addFacilityMarkers(map, data) {
   );
 }
 // ─── دوال بناء الطبقات ────────────────────────────────────────────
+function normalizeText(value) {
+  return String(value ?? "").trim().toUpperCase();
+}
+
+function getSeatIdentity(props = {}) {
+  const section = normalizeText(props.section || props.section_id || props.sectionId || props.block || props.stand_section);
+  const row = normalizeText(props.row || props.row_id || props.rowId);
+  const seat = normalizeText(props.seat || props.seat_number || props.seatNo || props.number || props.id || props.seat_id);
+  return `${section}|${row}|${seat}`;
+}
+
+function getSeatRowIdentity(props = {}) {
+  const section = normalizeText(props.section || props.section_id || props.sectionId || props.block || props.stand_section);
+  const row = normalizeText(props.row || props.row_id || props.rowId);
+  return `${section}|${row}`;
+}
+
+function normalizeSeat3dCollection(seats3d) {
+  let id = 1;
+  return {
+    type: "FeatureCollection",
+    features: (seats3d.features || []).map((seat) => ({
+      ...seat,
+      id: seat.id ?? id++,
+      properties: {
+        ...(seat.properties || {}),
+        stand: seat.properties?.stand || guessStand(seat.properties?.section),
+      },
+    })),
+  };
+}
+
 function normalizeSeatPoints(seats) {
   let id = 1;
   return {
@@ -1060,6 +1336,30 @@ function showPopup(map, lngLat, html) {
   popupRefGlobal?.remove?.();
   popupRefGlobal = null;
 }
+function coordsDistance(a, b) {
+  if (!a || !b) return Number.POSITIVE_INFINITY;
+  const dx = Number(a[0]) - Number(b[0]);
+  const dy = Number(a[1]) - Number(b[1]);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function connectorLine(from, to, name) {
+  return {
+    type: "Feature",
+    properties: { kind: "connector", name },
+    geometry: { type: "LineString", coordinates: [from, to] },
+  };
+}
+
+function buildDisplayRoute(routeData, startDisplay, startRoute, endRoute, endDisplay) {
+ 
+  return {
+    ...(routeData || {}),
+    type: "FeatureCollection",
+    features: routeData?.features || [],
+  };
+}
+
 function emptyRoute() {
   return { type: "FeatureCollection", features: [] };
 }
