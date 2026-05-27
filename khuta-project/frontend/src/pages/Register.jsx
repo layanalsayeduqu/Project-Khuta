@@ -249,26 +249,25 @@ function Register() {
                         </div>
 
                         <div>
+    <label className="auth-label">
+        {t.age}
+    </label>
 
-                            <label className="auth-label">
-                                {t.age}
-                            </label>
+    <input
+        type="number"
+        name="age"
+        min="13" 
+        placeholder="25"
+        value={formData.age}
+        onChange={handleChange}
+    />
 
-                            <input
-                                type="number"
-                                name="age"
-                                placeholder="25"
-                                value={formData.age}
-                                onChange={handleChange}
-                            />
-
-                            {errors.age && (
-                                <p className="field-error">
-                                    {errors.age}
-                                </p>
-                            )}
-
-                        </div>
+    {errors.age && (
+        <p className="field-error">
+            {errors.age}
+        </p>
+    )}
+</div>
 
                     </div>
 

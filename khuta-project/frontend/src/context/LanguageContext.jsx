@@ -11,7 +11,7 @@ const TRANSLATIONS = {
         login: "Login",
         register: "Create Account",
         profile: "My Profile",
-        map: "Navigation",
+        map: "Guide Me",
         logout: "Logout",
 
         liveScore: "Live Score",
@@ -88,7 +88,7 @@ const TRANSLATIONS = {
         login: "تسجيل الدخول",
         register: "إنشاء حساب",
         profile: "ملفي الشخصي",
-        map: "الملاحة",
+        map: "وجّهني",
         logout: "تسجيل الخروج",
 
         liveScore: "النتائج المباشرة",
@@ -129,7 +129,7 @@ const TRANSLATIONS = {
         myBookings: "حجوزاتي",
         favorites: "النادي المفضل",
         payment: "الدفع",
-        seatMap: "خريطة المقاعد",
+        seatMap: "خريطةالمقاعد",
 
         bookNow: "احجز الآن",
         confirmPayment: "تأكيد الدفع",

@@ -13,6 +13,8 @@ function Login() {
     });
 
     const [loading, setLoading] = useState(false);
+    // تم إضافة هذه الحالة (State) لحفظ وعرض رسائل الخطأ بشكل صحيح
+    const [errorMessage, setErrorMessage] = useState(""); 
 
     const handleChange = (event) => {
         setFormData({
@@ -25,6 +27,7 @@ function Login() {
         event.preventDefault();
 
         setLoading(true);
+        setErrorMessage(""); // تصفير الخطأ مع كل محاولة جديدة
 
         try {
             const response = await API.post(
@@ -40,12 +43,10 @@ function Login() {
             window.location.href = "/profile";
 
         } catch (error) {
-           {error && (
-            <p className="field-error">
-                {error}
-            </p>
-        )}
-
+            // التقاط الخطأ من الباك اند وتخزينه بشكل صحيح
+            setErrorMessage(
+                error.response?.data?.message || "حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مرة أخرى."
+            );
         } finally {
             setLoading(false);
         }
@@ -57,7 +58,12 @@ function Login() {
             <section className="auth-card">
 
                 <div className="auth-icon">
-                    <img src="/logo.png" alt="Khuta Logo" />
+                    {/* هنا تم إضافة الستايل المباشر لتصغير اللوقو */}
+                    <img 
+                        src="/logo.png" 
+                        alt="Khuta Logo" 
+                        style={{ width: '120px', height: 'auto' }} 
+                    />
                 </div>
 
                 <h1>
@@ -67,6 +73,13 @@ function Login() {
                 <p>
                     {t.loginSubtitle || "Welcome back to Khuta Stadium"}
                 </p>
+
+                {/* هنا يتم عرض الخطأ للمستخدم بطريقة برمجية صحيحة */}
+                {errorMessage && (
+                    <p className="field-error" style={{ color: '#ff4d4f', textAlign: 'center', marginBottom: '15px' }}>
+                        {errorMessage}
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit}>
 

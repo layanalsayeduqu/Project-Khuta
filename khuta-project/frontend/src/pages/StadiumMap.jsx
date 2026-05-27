@@ -35,7 +35,7 @@ const FACILITY_CONFIG = {
   medical:  { icon: "✚",  color: "#116e08", label: "خدمات طبية", labelEn: "First Aid" },
   exit:     { icon: "🚪", color: "#00897B", label: "مخرج طوارئ", labelEn: "Emergency Exit" },
   prayer:   { icon: "🕌", color: "#6D4C41", label: "مصلى", labelEn: "Prayer Room" },
-  gate:     { icon: "🚩", color: "#1B5E20", label: "Gate دخول", labelEn: "Entry Gate" },
+  gate:     { icon: "🚩", color: "#1B5E20", label: "بوابات الدخول", labelEn: "Entry Gate" },
 };
 
 
@@ -68,7 +68,7 @@ const { lang, t } = useLanguage();
     { key: "West",  label: "المدرج الغربي",   ar: "W" },
   ], []);
   const facilityLegend = useMemo(() => [
-    { type: "gate",     label: "Gate دخول" },
+    { type: "gate",     label: "بوابات الدخول" },
     { type: "restroom", label: "دورات مياه" },
     { type: "food",     label: "مطاعم ومشروبات" },
     { type: "medical",  label: "خدمات طبية" },
