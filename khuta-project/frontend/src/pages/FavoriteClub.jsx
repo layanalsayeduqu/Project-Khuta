@@ -49,7 +49,14 @@ function FavoriteClub() {
             <section className="favorite-page-pro">
 
                 <div className="favorite-header">
-                    <div className="favorite-icon"><img src="/logo.png" alt="Khuta Logo" /></div>
+                   
+                    {/* هنا تم إضافة الستايل المباشر لتصغير اللوقو */}
+                    <img 
+                        src="/logo.png" 
+                        alt="Khuta Logo" 
+                        style={{ width: '120px', height: 'auto' }} 
+                    />
+                
 
                     <div>
                         <h1>{t.favorites || "My Favorites"}</h1>
