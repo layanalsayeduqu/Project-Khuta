@@ -1,4 +1,9 @@
+import React from 'react';
 import { useLanguage } from "../context/LanguageContext";
+
+// التعديل السحري: المسارات الدقيقة بناءً على مجلد الـ assets الخاص بك
+import stadiumImg from '../assets/stadium_mini.png'; 
+import logoImg from '../assets/logo.png'; 
 
 function Home() {
     const { t, lang } = useLanguage();
@@ -9,14 +14,14 @@ function Home() {
         away_team: t.alNassr,
         home_goals: 2,
         away_goals: 1,
-        date: "2024-12-15T20:00:00",
+        date: "2026-05-27T20:00:00",
         league: t.saudiLeague
     };
 
     const upcomingMatches = [
-        { id: 1, home_team: t.alRaed, away_team: t.alNassr, date: "2024-08-22T21:00:00", league: t.saudiLeague },
-        { id: 2, home_team: t.alRiyadh, away_team: t.alWehda, date: "2024-08-22T21:00:00", league: t.saudiLeague },
-        { id: 3, home_team: t.alFayha, away_team: t.alTaawon, date: "2024-08-22T19:10:00", league: t.saudiLeague }
+        { id: 1, home_team: t.alRaed, away_team: t.alNassr, date: "2026-05-30T21:00:00", league: t.saudiLeague },
+        { id: 2, home_team: t.alRiyadh, away_team: t.alWehda, date: "2026-05-31T21:00:00", league: t.saudiLeague },
+        { id: 3, home_team: t.alFayha, away_team: t.alTaawon, date: "2026-06-01T19:10:00", league: t.saudiLeague }
     ];
 
     const formatDate = (date) =>
@@ -30,6 +35,24 @@ function Home() {
 
     return (
         <main className="page home-page">
+            
+            {/* البانر الترحيبي يستدعي الآن الصورة المحددة بنجاح */}
+            <section 
+                className="hero-welcome-banner" 
+                style={{ backgroundImage: `url(${stadiumImg})` }}
+            >
+                <div className="hero-welcome-overlay"></div>
+
+                <div className="hero-welcome-content">
+                    <h1>
+                        <img src={logoImg} alt="Logo" className="hero-welcome-logo" />
+                        <span>{t.projectTitle}</span>
+                    </h1>
+                    <p>{t.projectSubtitle}</p>
+                </div>
+            </section>
+
+            {/* قسم عرض النتائج المباشرة */}
             <section className="today-section">
                 <h2 className="home-section-title">{t.liveScore}</h2>
 
@@ -62,6 +85,7 @@ function Home() {
                 </div>
             </section>
 
+            {/* قسم عرض الجدول القادم */}
             <section className="upcoming-section">
                 <h2 className="home-section-title">{t.upcomingMatchesHome}</h2>
 
@@ -91,6 +115,7 @@ function Home() {
                     ))}
                 </div>
             </section>
+
         </main>
     );
 }
