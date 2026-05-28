@@ -94,27 +94,7 @@ export default function TicketsPage() {
     }
 
     return (
-        <main className="page">
-
-            <section className="hero">
-                <div className="hero-content">
-                    <div>
-                        <h1>
-                            🎫 {t.tickets}
-                        </h1>
-
-                        <p>
-                            {t.ticketHeroSubtitle ||
-                                "Choose your match and enjoy the stadium experience"}
-                        </p>
-                    </div>
-
-                    <button className="hero-btn">
-                        {t.bookNow}
-                    </button>
-                </div>
-            </section>
-
+            <main className="page">
             <section className="tickets-page-section">
 
                 <div className="section-title">
