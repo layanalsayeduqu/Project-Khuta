@@ -80,7 +80,10 @@ const TRANSLATIONS = {
         select: "Select",
 
         profileSubtitle: "Manage your personal information",
-        profileUpdated: "Profile updated successfully"
+        profileUpdated: "Profile updated successfully",
+        projectTitle: "Khuta",
+        projectSubtitle: "Your smart companion inside the stadium. Book, locate your gate & seat, and live the match experience intelligently."
+        
     },
 
     ar: {
@@ -157,7 +160,9 @@ const TRANSLATIONS = {
         select: "اختيار",
 
         profileSubtitle: "إدارة معلوماتك الشخصية",
-        profileUpdated: "تم تحديث الملف الشخصي بنجاح"
+        profileUpdated: "تم تحديث الملف الشخصي بنجاح",
+        projectTitle: "خُطى",
+        projectSubtitle: "رَفِيقُك الذكي دَاخِل المَلعَب. احجِز، حَدِّد بَوَّابَتِك ومَقعَدِك، وعِش أَجوَاء المُبَارَاة بِذَكَاء."
     }
 };
 
