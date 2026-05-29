@@ -79,15 +79,21 @@ function Navbar() {
             </div>
 
             <div className="nav-actions">
+            <button
+                type="button"
+                className={`theme-switch ${theme === "dark" ? "dark" : ""}`}
+                onClick={toggleTheme}
+            >
+                <span className="theme-thumb"></span>
 
-                <button onClick={toggleTheme}>
+                <span className="theme-moon">🌙</span>
 
-                    {theme === "light"
-                        ? "🌙"
-                        : "☀️"}
+                <span className="theme-star star-1">✦</span>
+                <span className="theme-star star-2">✦</span>
+                <span className="theme-star star-3">✦</span>
 
-                </button>
-
+                <span className="theme-sun">☀️</span>
+            </button>
                 <button onClick={toggleLanguage}>
 
                     {lang === "en"
