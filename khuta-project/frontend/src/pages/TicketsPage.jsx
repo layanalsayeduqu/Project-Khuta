@@ -3,51 +3,6 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 import { useLanguage } from "../context/LanguageContext";
 
-const FALLBACK_MATCHES = [
-    {
-        id: 1,
-        home_team: "Al Hilal",
-        home_team_ar: "الهلال",
-        away_team: "Al Nassr",
-        away_team_ar: "النصر",
-        date: "Saturday 3 May",
-        date_ar: "السبت 3 مايو",
-        time: "8:00 PM",
-        time_ar: "8:00 مساءً",
-        stadium_name: "Prince Faisal Stadium",
-        stadium_name_ar: "ملعب الأمير فيصل",
-        base_price: 75
-    },
-    {
-        id: 2,
-        home_team: "Al Ittihad",
-        home_team_ar: "الاتحاد",
-        away_team: "Al Ahli",
-        away_team_ar: "الأهلي",
-        date: "Sunday 4 May",
-        date_ar: "الأحد 4 مايو",
-        time: "6:00 PM",
-        time_ar: "6:00 مساءً",
-        stadium_name: "Prince Faisal Stadium",
-        stadium_name_ar: "ملعب الأمير فيصل",
-        base_price: 60
-    },
-    {
-        id: 3,
-        home_team: "Al Shabab",
-        home_team_ar: "الشباب",
-        away_team: "Al Raed",
-        away_team_ar: "الرائد",
-        date: "Monday 5 May",
-        date_ar: "الاثنين 5 مايو",
-        time: "9:00 PM",
-        time_ar: "9:00 مساءً",
-        stadium_name: "Prince Faisal Stadium",
-        stadium_name_ar: "ملعب الأمير فيصل",
-        base_price: 50
-    }
-];
-
 export default function TicketsPage() {
     const { t, lang } = useLanguage();
 
@@ -58,7 +13,7 @@ export default function TicketsPage() {
             : match[field];
     const navigate = useNavigate();
 
-    const [matches, setMatches] = useState(FALLBACK_MATCHES);
+    const [matches, setMatches] = useState([]);
 
     useEffect(() => {
         fetchMatches();
@@ -72,9 +27,7 @@ export default function TicketsPage() {
                 ? response.data
                 : (response.data.matches || []);
 
-            if (apiMatches.length > 0) {
-                setMatches(apiMatches.slice(0, 12));
-            }
+            setMatches(apiMatches.slice(0, 12));
 
         } catch (error) {
             console.error("Tickets matches error:", error);

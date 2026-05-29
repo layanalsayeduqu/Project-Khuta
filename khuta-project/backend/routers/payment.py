@@ -79,9 +79,10 @@ def purchase_ticket(
             UPDATE seats
             SET status = 'reserved'
             WHERE seat_id = %s
+            AND match_id = %s
             AND status = 'available'
             RETURNING id, seat_id;
-        """, (data.seat_label,))
+        """, (data.seat_label, data.match_id))
 
         seat = cursor.fetchone()
 

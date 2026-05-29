@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useLanguage } from "../context/LanguageContext";
+import API from "../api/api";
 
 const BOUNDS = {
     minLon: 39.12215,
@@ -73,81 +74,32 @@ const WE_LATS = {
     E3: [22.08987973, 22.0898944, 22.08990907, 22.08994427, 22.08995893, 22.0899736]
 };
 
-function buildSeats() {
-    const seats = [];
+function getSeatCoords(section, row, seat) {
+    const ri = row - 1;
+    const si = seat - 1;
 
-    ["N1", "N2", "N3", "N4"].forEach((section) => {
-        N_LATS.forEach((lat, rowIndex) => {
-            NS_LONS[section].forEach((lon, seatIndex) => {
-                seats.push({
-                    seat_id: `${section}-R${rowIndex + 1}-S${seatIndex + 1}`,
-                    stand: "North",
-                    section,
-                    row: rowIndex + 1,
-                    seat: seatIndex + 1,
-                    status: "available",
-                    lon,
-                    lat
-                });
-            });
-        });
-    });
-
-    ["S1", "S2", "S3", "S4"].forEach((section) => {
-        S_LATS.forEach((lat, rowIndex) => {
-            NS_LONS[section].forEach((lon, seatIndex) => {
-                seats.push({
-                    seat_id: `${section}-R${rowIndex + 1}-S${seatIndex + 1}`,
-                    stand: "South",
-                    section,
-                    row: rowIndex + 1,
-                    seat: seatIndex + 1,
-                    status: "available",
-                    lon,
-                    lat
-                });
-            });
-        });
-    });
-
-    ["W1", "W2", "W3"].forEach((section) => {
-        W_LONS.forEach((lon, rowIndex) => {
-            WE_LATS[section].forEach((lat, seatIndex) => {
-                seats.push({
-                    seat_id: `${section}-R${rowIndex + 1}-S${seatIndex + 1}`,
-                    stand: "West",
-                    section,
-                    row: rowIndex + 1,
-                    seat: seatIndex + 1,
-                    status: "available",
-                    lon,
-                    lat
-                });
-            });
-        });
-    });
-
-    ["E1", "E2", "E3"].forEach((section) => {
-        E_LONS.forEach((lon, rowIndex) => {
-            WE_LATS[section].forEach((lat, seatIndex) => {
-                seats.push({
-                    seat_id: `${section}-R${rowIndex + 1}-S${seatIndex + 1}`,
-                    stand: "East",
-                    section,
-                    row: rowIndex + 1,
-                    seat: seatIndex + 1,
-                    status: "available",
-                    lon,
-                    lat
-                });
-            });
-        });
-    });
-
-    return seats;
+    if (["N1", "N2", "N3", "N4"].includes(section)) {
+        const lon = NS_LONS[section]?.[si];
+        const lat = N_LATS[ri];
+        return lon != null && lat != null ? [lon, lat] : null;
+    }
+    if (["S1", "S2", "S3", "S4"].includes(section)) {
+        const lon = NS_LONS[section]?.[si];
+        const lat = S_LATS[ri];
+        return lon != null && lat != null ? [lon, lat] : null;
+    }
+    if (["W1", "W2", "W3"].includes(section)) {
+        const lon = W_LONS[ri];
+        const lat = WE_LATS[section]?.[si];
+        return lon != null && lat != null ? [lon, lat] : null;
+    }
+    if (["E1", "E2", "E3"].includes(section)) {
+        const lon = E_LONS[ri];
+        const lat = WE_LATS[section]?.[si];
+        return lon != null && lat != null ? [lon, lat] : null;
+    }
+    return null;
 }
-
-const ALL_SEATS = buildSeats();
 
 const STAND_CATEGORIES = {
     North: { label: "Gold", multiplier: 1.5 },
@@ -164,7 +116,7 @@ const [, FIELD_Y2] = toSVG(39.12275, 22.08945);
 function seatColor(seat, isSelected) {
     if (isSelected) return "#7c3aed";
     if (seat.status === "sold") return "#374151";
-    if (seat.status === "reserved") return "#f59e0b";
+    if (seat.status === "reserved") return "#9ca3af";
 
     const colors = {
         North: "#f59e0b",
@@ -183,47 +135,40 @@ export default function SeatMap() {
 
     const selectedMatch = location.state?.match;
 
-    const [seats, setSeats] = useState(ALL_SEATS);
+    const [seats, setSeats] = useState([]);
     const [selected, setSelected] = useState({});
 
     useEffect(() => {
         if (!selectedMatch?.id) return;
 
-        fetch(`http://127.0.0.1:8000/api/seats/matches/${selectedMatch.id}`)
-            .then((response) => response.ok ? response.json() : null)
-            .then((dbSeats) => {
-                if (!dbSeats || dbSeats.length === 0) return;
+        setSeats([]);
 
-                const lookup = {};
-
-                dbSeats.forEach((db) => {
-                    const seatLabel =
-                        db.seat_number ||
-                        db.seat_label ||
-                        db.seat_id ||
-                        `${db.section}-R${db.row}-S${db.seat}`;
-
-                    lookup[seatLabel] = db;
-                });
+        API.get(`/api/seats/matches/${selectedMatch.id}`)
+            .then((response) => {
+                const dbSeats = Array.isArray(response.data) ? response.data : [];
 
                 setSeats(
-                    ALL_SEATS.map((seat) => {
-                        const db = lookup[seat.seat_id];
+                    dbSeats
+                        .map((db) => {
+                            const coords = getSeatCoords(db.section, db.row, db.seat);
+                            if (!coords) return null;
 
-                        if (!db) return seat;
-
-                        return {
-                            ...seat,
-                            dbId: db.id,
-                            status: db.status || "available",
-                            category:
-                                db.category ||
-                                STAND_CATEGORIES[seat.stand]?.label
-                        };
-                    })
+                            return {
+                                seat_id: db.seat_id || `${db.section}-R${db.row}-S${db.seat}`,
+                                stand: db.stand,
+                                section: db.section,
+                                row: db.row,
+                                seat: db.seat,
+                                status: db.status || "available",
+                                dbId: db.id,
+                                lon: coords[0],
+                                lat: coords[1]
+                            };
+                        })
+                        .filter(Boolean)
                 );
             })
-            .catch(() => {});
+            .catch(() => setSeats([]));
     }, [selectedMatch?.id]);
 
     const toggle = (seat) => {

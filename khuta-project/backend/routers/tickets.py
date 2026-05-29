@@ -20,7 +20,8 @@ def get_matches():
             stadium AS stadium_name,
             75 AS base_price,
             status
-        FROM matches;
+        FROM matches
+        WHERE status IN ('upcoming', 'scheduled');
     """)
 
     matches = cursor.fetchall()

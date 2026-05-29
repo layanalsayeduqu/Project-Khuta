@@ -140,7 +140,18 @@ const TRANSLATIONS = {
 
         youReachedDestination: "You have reached your destination",
         goToSection: "Go to section",
-        seatGuidanceNote: "Go to the selected section and look for your row and seat number."
+        seatGuidanceNote: "Go to the selected section and look for your row and seat number.",
+
+        errCardNameRequired: "Cardholder name is required.",
+        errCardNumberRequired: "Card number is required.",
+        errCardNumberInvalid: "Card number must be exactly 16 digits.",
+        errExpiryRequired: "Expiry date is required.",
+        errExpiryFormat: "Expiry must be in MM/YY format.",
+        errExpiryMonth: "Month must be between 01 and 12.",
+        errExpiryExpired: "Card has expired.",
+        errCvvRequired: "CVV is required.",
+        errCvvInvalid: "CVV must be 3 or 4 digits.",
+        errPaymentFailed: "Payment failed."
     },
 
     ar: {
@@ -277,7 +288,18 @@ const TRANSLATIONS = {
 
         youReachedDestination: "وصلتِ إلى وجهتك",
         goToSection: "توجهي إلى السكشن",
-        seatGuidanceNote: "توجهي إلى السكشن المحدد وابحثي عن الصف ورقم المقعد."
+        seatGuidanceNote: "توجهي إلى السكشن المحدد وابحثي عن الصف ورقم المقعد.",
+
+        errCardNameRequired: "اسم حامل البطاقة مطلوب.",
+        errCardNumberRequired: "رقم البطاقة مطلوب.",
+        errCardNumberInvalid: "يجب أن يتكون رقم البطاقة من 16 رقمًا.",
+        errExpiryRequired: "تاريخ انتهاء الصلاحية مطلوب.",
+        errExpiryFormat: "يجب أن يكون التاريخ بصيغة شهر/سنة (MM/YY).",
+        errExpiryMonth: "يجب أن يكون الشهر بين 01 و 12.",
+        errExpiryExpired: "انتهت صلاحية البطاقة.",
+        errCvvRequired: "رمز CVV مطلوب.",
+        errCvvInvalid: "يجب أن يتكون CVV من 3 أو 4 أرقام.",
+        errPaymentFailed: "فشلت عملية الدفع."
     }
 };
 

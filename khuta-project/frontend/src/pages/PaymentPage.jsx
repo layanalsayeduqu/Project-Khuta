@@ -2,6 +2,7 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import API from "../api/api";
 
 export default function PaymentPage() {
     const { t } = useLanguage();
@@ -20,7 +21,8 @@ export default function PaymentPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [ticketData, setTicketData] = useState([]);
-    const [error, setError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [apiError, setApiError] = useState("");
 
     const formatCard = (value) =>
         value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
@@ -30,15 +32,60 @@ export default function PaymentPage() {
         return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
     };
 
+    function validateForm() {
+        const errs = {};
+        const rawCard = cardNumber.replace(/\s/g, "");
+
+        if (!cardName.trim()) {
+            errs.cardName = t.errCardNameRequired;
+        }
+
+        if (!rawCard) {
+            errs.cardNumber = t.errCardNumberRequired;
+        } else if (rawCard.length !== 16) {
+            errs.cardNumber = t.errCardNumberInvalid;
+        }
+
+        if (!expiry) {
+            errs.expiry = t.errExpiryRequired;
+        } else if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+            errs.expiry = t.errExpiryFormat;
+        } else {
+            const [mm, yy] = expiry.split("/");
+            const month = parseInt(mm, 10);
+            const year = parseInt(yy, 10) + 2000;
+
+            if (month < 1 || month > 12) {
+                errs.expiry = t.errExpiryMonth;
+            } else {
+                const now = new Date();
+                const firstOfExpiry = new Date(year, month - 1, 1);
+                const firstOfNow = new Date(now.getFullYear(), now.getMonth(), 1);
+
+                if (firstOfExpiry < firstOfNow) {
+                    errs.expiry = t.errExpiryExpired;
+                }
+            }
+        }
+
+        if (!cvv) {
+            errs.cvv = t.errCvvRequired;
+        } else if (cvv.length < 3 || cvv.length > 4) {
+            errs.cvv = t.errCvvInvalid;
+        }
+
+        return errs;
+    }
+
     async function handlePay(event) {
         event.preventDefault();
 
-        if (!cardName || cardNumber.replace(/\s/g, "").length < 16 || expiry.length < 5 || cvv.length < 3) {
-            setError(t.fillCardError || "Please fill all card details correctly");
-            return;
-        }
+        const errs = validateForm();
+        setFieldErrors(errs);
 
-        setError("");
+        if (Object.keys(errs).length > 0) return;
+
+        setApiError("");
         setLoading(true);
 
         const last4 = cardNumber.replace(/\s/g, "").slice(-4);
@@ -46,31 +93,24 @@ export default function PaymentPage() {
 
         for (const seat of seats) {
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/payment/purchase", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({
+                const response = await API.post(
+                    "/api/payment/purchase",
+                    {
                         match_id: match.id,
-                        seat_id: 0,
+                        seat_id: seat.dbId ?? 0,
                         seat_label: seat.id,
                         amount: seat.price,
                         payment_method: "card",
                         card_last4: last4
-                    })
-                });
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }
+                );
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(
-                        typeof data.detail === "string"
-                            ? data.detail
-                            : JSON.stringify(data.detail || "Payment failed")
-                    );
-                }
+                const data = response.data;
 
                 purchased.push({
                     seat,
@@ -79,8 +119,9 @@ export default function PaymentPage() {
                     ticket_id: data.ticket_id
                 });
 
-            } catch (error) {
-                setError(error.message || "Payment failed");
+            } catch (err) {
+                const detail = err.response?.data?.detail;
+                setApiError(typeof detail === "string" ? detail : t.errPaymentFailed);
                 setLoading(false);
                 return;
             }
@@ -190,41 +231,57 @@ export default function PaymentPage() {
                         <div className="form-label">{t.paymentDetails}</div>
 
                         <input
-                            className="pay-input"
+                            className={`pay-input${fieldErrors.cardName ? " input-error" : ""}`}
                             placeholder={t.cardHolder}
                             value={cardName}
                             onChange={(event) => setCardName(event.target.value)}
                         />
+                        {fieldErrors.cardName && (
+                            <p className="field-error">{fieldErrors.cardName}</p>
+                        )}
 
                         <input
-                            className="pay-input"
+                            className={`pay-input${fieldErrors.cardNumber ? " input-error" : ""}`}
                             placeholder={t.cardNumber}
                             value={cardNumber}
                             onChange={(event) => setCardNumber(formatCard(event.target.value))}
                             inputMode="numeric"
                         />
+                        {fieldErrors.cardNumber && (
+                            <p className="field-error">{fieldErrors.cardNumber}</p>
+                        )}
 
                         <div className="input-row">
-                            <input
-                                className="pay-input"
-                                placeholder="MM/YY"
-                                value={expiry}
-                                onChange={(event) => setExpiry(formatExp(event.target.value))}
-                                inputMode="numeric"
-                            />
+                            <div style={{ flex: 1 }}>
+                                <input
+                                    className={`pay-input${fieldErrors.expiry ? " input-error" : ""}`}
+                                    placeholder="MM/YY"
+                                    value={expiry}
+                                    onChange={(event) => setExpiry(formatExp(event.target.value))}
+                                    inputMode="numeric"
+                                />
+                                {fieldErrors.expiry && (
+                                    <p className="field-error">{fieldErrors.expiry}</p>
+                                )}
+                            </div>
 
-                            <input
-                                className="pay-input"
-                                placeholder="CVV"
-                                value={cvv}
-                                onChange={(event) =>
-                                    setCvv(event.target.value.replace(/\D/g, "").slice(0, 4))
-                                }
-                                inputMode="numeric"
-                            />
+                            <div style={{ flex: 1 }}>
+                                <input
+                                    className={`pay-input${fieldErrors.cvv ? " input-error" : ""}`}
+                                    placeholder="CVV"
+                                    value={cvv}
+                                    onChange={(event) =>
+                                        setCvv(event.target.value.replace(/\D/g, "").slice(0, 4))
+                                    }
+                                    inputMode="numeric"
+                                />
+                                {fieldErrors.cvv && (
+                                    <p className="field-error">{fieldErrors.cvv}</p>
+                                )}
+                            </div>
                         </div>
 
-                        {error && <div className="form-error">{error}</div>}
+                        {apiError && <div className="form-error">{apiError}</div>}
 
                         <button className="pay-btn" type="submit" disabled={loading}>
                             {loading ? t.loading : `${t.confirmPayment} - ${total} SAR`}
