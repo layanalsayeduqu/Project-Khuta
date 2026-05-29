@@ -27,6 +27,7 @@ const TRANSLATIONS = {
         alWehda: "Al Wehda Club",
         alFayha: "Al-Fayha",
         alTaawon: "Al Taawon",
+     
 
         welcome: "Welcome to Khuta Stadium",
         subtitle: "Book matches, choose your seat, and navigate inside the stadium easily.",
@@ -52,6 +53,20 @@ const TRANSLATIONS = {
         tickets: "Tickets",
         myBookings: "My Bookings",
         favorites: "My Favorites",
+        selectClub: "Select Your Club",
+        saveFavoriteClub: "Save Favorite Club",
+        upcomingMatches: "Upcoming Matches",
+        startsFrom: "Starting from",
+        viewDetails: "View Details",
+        bookTicket: "Book Ticket",
+        noMatches: "No upcoming matches for your favorite club.",
+        upcomingMatchesCount: "upcoming matches",
+        alhilal: "Al Hilal",
+        alnassr: "Al Nassr",
+        alittihad: "Al Ittihad",
+        alahli: "Al Ahli",
+        alshabab: "Al Shabab",
+        alettifaq: "Al Ettifaq",
         payment: "Payment",
         seatMap: "Seat Map",
 
@@ -140,7 +155,9 @@ const TRANSLATIONS = {
 
         youReachedDestination: "You have reached your destination",
         goToSection: "Go to section",
-        seatGuidanceNote: "Go to the selected section and look for your row and seat number."
+        seatGuidanceNote: "Go to the selected section and look for your row and seat number.",
+        home: "Home"
+       
     },
 
     ar: {
@@ -189,6 +206,21 @@ const TRANSLATIONS = {
         tickets: "التذاكر",
         myBookings: "حجوزاتي",
         favorites: "النادي المفضل",
+        selectClub: "اختر ناديك المفضل",
+        saveFavoriteClub: "حفظ النادي المفضل",
+        upcomingMatches: "المباريات القادمة",
+        startsFrom: "تبدأ من",
+        viewDetails: "عرض التفاصيل",
+        bookTicket: "احجز التذكرة",
+        noMatches: "لا توجد مباريات قادمة لناديك المفضل حالياً.",
+        upcomingMatchesCount: "مباريات قادمة",
+        alhilal: "الهلال",
+        alnassr: "النصر",
+        alittihad: "الاتحاد",
+        alahli: "الأهلي",
+        alshabab: "الشباب",
+        alettifaq: "الاتفاق",
+
         payment: "الدفع",
         seatMap: "خريطةالمقاعد",
 
@@ -277,7 +309,8 @@ const TRANSLATIONS = {
 
         youReachedDestination: "وصلتِ إلى وجهتك",
         goToSection: "توجهي إلى السكشن",
-        seatGuidanceNote: "توجهي إلى السكشن المحدد وابحثي عن الصف ورقم المقعد."
+        seatGuidanceNote: "توجهي إلى السكشن المحدد وابحثي عن الصف ورقم المقعد.",
+         home: "الصفحة الرئيسية"
     }
 };
 

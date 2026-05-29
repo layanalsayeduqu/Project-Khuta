@@ -2094,3 +2094,169 @@ body.dark .register-card p,
 [data-theme="dark"] .register-card p {
     color: var(--muted);
 }
+
+
+body.dark .favorite-card,
+body.dark .club-choice,
+.dark .favorite-card,
+.dark .club-choice,
+[data-theme="dark"] .favorite-card,
+[data-theme="dark"] .club-choice {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark .club-choice span,
+.dark .club-choice span,
+[data-theme="dark"] .club-choice span {
+    color: var(--text);
+}
+
+body.dark .club-choice.active,
+.dark .club-choice.active,
+[data-theme="dark"] .club-choice.active {
+    background: #2b2144;
+    border-color: #8b5cf6;
+}
+
+body.dark .selected-club-card,
+body.dark .favorite-match-card,
+.dark .selected-club-card,
+.dark .favorite-match-card,
+[data-theme="dark"] .selected-club-card,
+[data-theme="dark"] .favorite-match-card {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark .favorite-section-title,
+body.dark .favorite-card h3,
+body.dark .selected-club-card h2,
+body.dark .fav-team strong,
+.dark .favorite-section-title,
+.dark .favorite-card h3,
+.dark .selected-club-card h2,
+.dark .fav-team strong,
+[data-theme="dark"] .favorite-section-title,
+[data-theme="dark"] .favorite-card h3,
+[data-theme="dark"] .selected-club-card h2,
+[data-theme="dark"] .fav-team strong {
+    color: var(--text);
+}
+
+body.dark .fav-meta,
+body.dark .fav-price-label,
+body.dark .selected-club-card p,
+.dark .fav-meta,
+.dark .fav-price-label,
+.dark .selected-club-card p,
+[data-theme="dark"] .fav-meta,
+[data-theme="dark"] .fav-price-label,
+[data-theme="dark"] .selected-club-card p {
+    color: var(--muted);
+}
+.profile-actions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.profile-actions-row button {
+    width: 100%;
+}
+.theme-switch {
+    width: 92px;
+    height: 44px;
+    border-radius: 999px;
+    border: 2px solid #c9b3ff;
+    background: #ffffff !important;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: none !important;
+}
+
+.theme-switch.dark {
+    background: #12162b !important;
+    border-color: #8b5cf6;
+}
+
+.theme-thumb {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #f5f1ff;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    transition: 0.35s ease;
+    z-index: 5;
+}
+
+.theme-switch.dark .theme-thumb {
+    left: 50px;
+    background: #343b62;
+}
+
+.theme-sun {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: #facc15;
+    z-index: 2;
+}
+
+.theme-switch.dark .theme-sun {
+    opacity: 0;
+}
+
+.theme-moon {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #ffd34d;
+    opacity: 0;
+    z-index: 2;
+}
+
+.theme-switch.dark .theme-moon {
+    opacity: 1;
+}
+
+.theme-star {
+    position: absolute;
+    color: #ffea00;
+    opacity: 0;
+    z-index: 3;
+    text-shadow: 0 0 8px rgba(255, 234, 0, 0.9);
+}
+
+.theme-switch.dark .theme-star {
+    opacity: 1;
+}
+
+.star-1 {
+    top: 6px;
+    left: 13px;
+    font-size: 10px;
+}
+
+.star-2 {
+    bottom: 7px;
+    left: 25px;
+    font-size: 8px;
+}
+
+.star-3 {
+    top: 15px;
+    left: 38px;
+    font-size: 7px;
+}

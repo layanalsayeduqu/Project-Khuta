@@ -1,78 +1,155 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 const CLUBS = [
-    { id: "alhilal", name: "Al Hilal", color: "#2f80ed" },
-    { id: "alnassr", name: "Al Nassr", color: "#f2c94c" },
-    { id: "alittihad", name: "Al Ittihad", color: "#252238" },
-    { id: "alahli", name: "Al Ahli", color: "#2ecc71" },
-    { id: "alshabab", name: "Al Shabab", color: "#cbb7ff" },
-    { id: "alettifaq", name: "Al Ettifaq", color: "#8b4a4a" }
+    { id: "alhilal", color: "#2f80ed" },
+    { id: "alnassr", color: "#f2c94c" },
+    { id: "alittihad", color: "#252238" },
+    { id: "alahli", color: "#2ecc71" },
+    { id: "alshabab", color: "#cbb7ff" },
+    { id: "alettifaq", color: "#8b4a4a" }
 ];
 
-const MATCHES = [
-    {
-        id: 1,
-        home: "Al Hilal",
-        away: "Al Nassr",
-        homeColor: "#2f80ed",
-        awayColor: "#f2c94c",
-        score: "2 - 1",
-        date: "2024-12-15",
-        time: "20:00",
-        stadium: "King Fahd Stadium",
-        price: 150,
-        live: true
-    },
-    {
-        id: 2,
-        home: "Al Ahli",
-        away: "Al Hilal",
-        homeColor: "#2ecc71",
-        awayColor: "#2f80ed",
-        score: "VS",
-        date: "2024-12-20",
-        time: "20:30",
-        stadium: "Prince Abdullah Al Faisal Stadium",
-        price: 250,
-        live: false
-    }
-];
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 function FavoriteClub() {
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
 
-    const [selectedClub, setSelectedClub] = useState(CLUBS[0]);
+    const [selectedClubId, setSelectedClubId] = useState(CLUBS[0].id);
+    const navigate = useNavigate();
+    const [matches, setMatches] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saveLoading, setSaveLoading] = useState(false);
+
+    const currentClub =
+        CLUBS.find((club) => club.id === selectedClubId) || CLUBS[0];
+
+    const getUserId = () => {
+        const userId =
+            localStorage.getItem("user_id") ||
+            localStorage.getItem("userId") ||
+            localStorage.getItem("id");
+
+        return Number(userId);
+    };
+
+    const fetchFavoriteData = async () => {
+        const userId = getUserId();
+
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/matches/favorite?user_id=${userId}`
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setMatches(data.matches || []);
+
+                if (
+                    data.favoriteClub &&
+                    data.favoriteClub !== "EMPTY" &&
+                    data.favoriteClub !== "NULL"
+                ) {
+                    setSelectedClubId(data.favoriteClub);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch favorite matches:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFavoriteData();
+    }, []);
+
+    const handleSaveFavorite = async () => {
+        const userId = getUserId();
+
+        if (!userId) {
+            alert(
+                lang === "ar"
+                    ? "يجب تسجيل الدخول أولًا"
+                    : "Please login first"
+            );
+            return;
+        }
+
+        setSaveLoading(true);
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/user/update-favorite`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        favorite_club: selectedClubId
+                    })
+                }
+            );
+
+            if (response.ok) {
+                await fetchFavoriteData();
+            }
+        } catch (error) {
+            console.error("Save failed:", error);
+            console.error("Error saving favorite club:", error);
+            alert(
+                lang === "ar"
+                    ? "خطأ في الاتصال بالسيرفر"
+                    : "Network error"
+            );
+        } finally {
+            setSaveLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100vh"
+                }}
+            >
+                <h2>{t.loading || "Loading..."}</h2>
+            </div>
+        );
+    }
 
     return (
         <main className="page">
             <section className="favorite-page-pro">
-
                 <div className="favorite-header">
-                   
-                    {/* هنا تم إضافة الستايل المباشر لتصغير اللوقو */}
-                    <img 
-                        src="/logo.png" 
-                        alt="Khuta Logo" 
-                        style={{ width: '120px', height: 'auto' }} 
+                    <img
+                        src="/logo.png"
+                        alt="Logo"
+                        style={{ width: "120px", height: "auto" }}
                     />
-                
 
                     <div>
                         <h1>{t.favorites || "My Favorites"}</h1>
-                        <p>
-                            {t.favoriteSubtitle ||
-                                "Select your favorite club and never miss a match"}
-                        </p>
+                       
                     </div>
                 </div>
 
                 <div className="favorite-layout">
-
                     <aside className="favorite-card">
-                        <h3>
-                            {t.selectClub || "Select Your Club"}
-                        </h3>
+                        <h3>{t.selectClub}</h3>
 
                         <div className="club-stack">
                             {CLUBS.map((club) => (
@@ -80,11 +157,13 @@ function FavoriteClub() {
                                     key={club.id}
                                     type="button"
                                     className={`club-choice ${
-                                        selectedClub.id === club.id
+                                        selectedClubId === club.id
                                             ? "active"
                                             : ""
                                     }`}
-                                    onClick={() => setSelectedClub(club)}
+                                    onClick={() =>
+                                        setSelectedClubId(club.id)
+                                    }
                                 >
                                     <span
                                         className="club-dot"
@@ -93,108 +172,138 @@ function FavoriteClub() {
                                         }}
                                     />
 
-                                    <span>{club.name}</span>
+                                    <span>{t[club.id] || club.id}</span>
 
-                                    {selectedClub.id === club.id && (
-                                        <span className="club-check">✓</span>
+                                    {selectedClubId === club.id && (
+                                        <span className="club-check">
+                                            ✓
+                                        </span>
                                     )}
                                 </button>
                             ))}
                         </div>
 
-                        <button className="save-btn">
-                            {t.saveFavoriteClub || "Save Favorite Club"}
+                        <button
+                            className="save-btn"
+                            onClick={handleSaveFavorite}
+                            disabled={saveLoading}
+                        >
+                            {saveLoading
+                                ? lang === "ar"
+                                    ? "جاري الحفظ..."
+                                    : "Saving..."
+                                : t.saveFavoriteClub || "Save"}
                         </button>
                     </aside>
 
                     <section className="favorite-content">
-
                         <div className="selected-club-card">
                             <span
                                 className="selected-club-logo"
                                 style={{
-                                    background: selectedClub.color
+                                    background: currentClub.color
                                 }}
                             />
 
                             <div>
-                                <h2>{selectedClub.name}</h2>
-                                <p>2 upcoming matches</p>
+                                <h2>
+                                    {t[currentClub.id] ||
+                                        currentClub.id}
+                                </h2>
+
+                                <p>
+                                    {matches.length}{" "}
+                                    {t.upcomingMatchesCount ||
+                                        "upcoming matches"}
+                                </p>
                             </div>
                         </div>
 
                         <h3 className="favorite-section-title">
-                            📅 {t.upcomingTickets || "Upcoming Matches"}
+                            📅 {t.upcomingMatches || "Upcoming Matches"}
                         </h3>
 
                         <div className="favorite-matches">
-                            {MATCHES.map((match) => (
-                                <div
-                                    key={match.id}
-                                    className="favorite-match-card"
+                            {matches.length === 0 ? (
+                                <p
+                                    style={{
+                                        padding: "30px",
+                                        textAlign: "center",
+                                        color: "#888"
+                                    }}
                                 >
-                                    {match.live && (
-                                        <span className="live-pill">
-                                            ● LIVE
-                                        </span>
-                                    )}
+                                    {t.noMatches ||
+                                        "No upcoming matches"}
+                                </p>
+                            ) : (
+                                matches.map((match) => (
+                                    <div
+                                        key={match.id}
+                                        className="favorite-match-card"
+                                    >
+                                        <div className="fav-teams">
+                                            <div className="fav-team">
+                                                <strong>
+                                                    {t[
+                                                        match.home_team_id
+                                                    ] ||
+                                                        match.home_team_id}
+                                                </strong>
+                                            </div>
 
-                                    <div className="fav-teams">
-                                        <div className="fav-team">
-                                            <span
-                                                className="fav-team-logo"
-                                                style={{
-                                                    background: match.homeColor
-                                                }}
-                                            />
-                                            <strong>{match.home}</strong>
+                                            <div className="fav-score">
+                                                {match.score || "VS"}
+                                            </div>
+
+                                            <div className="fav-team">
+                                                <strong>
+                                                    {t[
+                                                        match.away_team_id
+                                                    ] ||
+                                                        match.away_team_id}
+                                                </strong>
+                                            </div>
                                         </div>
 
-                                        <div className="fav-score">
-                                            {match.score}
+                                        <div className="fav-meta">
+                                            <span>📅 {match.date}</span>
+                                            <span>⏱ {match.time}</span>
+                                            <span>🏟 {match.stadium}</span>
                                         </div>
 
-                                        <div className="fav-team">
-                                            <span
-                                                className="fav-team-logo"
-                                                style={{
-                                                    background: match.awayColor
-                                                }}
-                                            />
-                                            <strong>{match.away}</strong>
+                                        <div className="fav-footer">
+                                            <div>
+                                                <span className="fav-price-label">
+                                                    {t.startsFrom}
+                                                </span>
+
+                                                <strong>
+                                                    {" "}
+                                                    {match.price || 150} SAR
+                                                </strong>
+                                            </div>
+
+                                          <div className="fav-actions">
+                                        <button
+                                            className="details-btn"
+                                            onClick={() => navigate("/tickets")}
+                                        >
+                                            {t.viewDetails}
+                                        </button>
+
+                                        <button
+                                            className="book-btn-mini"
+                                            onClick={() => navigate("/tickets")}
+                                        >
+                                            {t.bookTicket} →
+                                        </button>
+                                    </div>
                                         </div>
                                     </div>
-
-                                    <div className="fav-meta">
-                                        <span>📅 {match.date}</span>
-                                        <span>⏱ {match.time}</span>
-                                        <span>🏟 {match.stadium}</span>
-                                    </div>
-
-                                    <div className="fav-footer">
-                                        <div>
-                                            <span className="fav-price-label">
-                                                {t.startsFrom || "Starting from"}
-                                            </span>
-                                            <strong>{match.price} SAR</strong>
-                                        </div>
-
-                                        <div className="fav-actions">
-                                            <button className="details-btn">
-                                                {t.viewDetails || "View Details"}
-                                            </button>
-
-                                            <button className="book-btn-mini">
-                                                {t.bookTicket || "Book Ticket"} →
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
-
                     </section>
-
                 </div>
             </section>
         </main>

@@ -39,13 +39,30 @@ function Login() {
                 response.data.token
             );
 
+            localStorage.setItem(
+                "user_id",
+                response.data.user.id
+            );
+
+            localStorage.setItem(
+                "user_name",
+                response.data.user.name
+            );
+
+            localStorage.setItem(
+                "user_email",
+                response.data.user.email
+            );
+
             window.location.href = "/profile";
+
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message ||
                 error.response?.data?.detail ||
                 "حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مرة أخرى."
             );
+
         } finally {
             setLoading(false);
         }

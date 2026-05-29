@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 
 import API from "../api/api";
 import { useLanguage } from "../context/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
     const { t } = useLanguage();
-
+    const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -100,6 +101,13 @@ function Profile() {
             </main>
         );
     }
+        <button
+        type="button"
+        onClick={() => navigate("/")}
+        style={{ marginTop: "12px" }}
+    >
+        🏠 {t.home}
+    </button>
 
     return (
         <main className="auth-page">
@@ -207,6 +215,7 @@ function Profile() {
                         </p>
                     )}
 
+                    <div className="profile-actions-row">
                     <button
                         type="submit"
                         disabled={saving}
@@ -215,6 +224,14 @@ function Profile() {
                             ? t.loading
                             : `${t.saveChanges} →`}
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate("/")}
+                    >
+                         {t.home}
+                    </button>
+                </div>
 
                 </form>
 
